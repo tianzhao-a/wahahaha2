@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AD钙奶30周年·童心拾光机</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:"PingFang SC","微软雅黑",sans-serif}
+        body{
+            background:#f8fcff;color:#333;overflow-x:hidden;
+        }
+        body::before{
+            content:"";position:fixed;top:0;left:0;width:100%;height:100%;
+            background:url(https://pic.588ku.com/background/20210421/big_588_202104217214181368300.jpg) no-repeat center;
+            background-size:cover;opacity:0.12;z-index:-2;
+            animation:bgMove 25s linear infinite alternate;
+        }
+        @keyframes bgMove{
+            0%{transform:scale(1.03) translateX(-8px)}
+            100%{transform:scale(1) translateX(8px)}
+        }
+        .fall-wrap{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:-1;}
+        .page{width:100%;min-height:100vh;padding:20px;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;}
+        .active{display:flex!important}
+        #loading{background:linear-gradient(160deg,#ffffff,#e6f4ff);display:flex;animation:fadeOut 3s forwards}
+        @keyframes fadeOut{0%{opacity:1}90%{opacity:1}100%{opacity:0;display:none}}
+        .badge{position:absolute;top:18px;right:20px;width:60px;height:60px;background:linear-gradient(45deg,#ff9fbd,#fc5c8f);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:13px;box-shadow:0 4px 12px rgba(255,140,150,0.3);z-index:10;}
+        #home{background:linear-gradient(180deg,#ffffff 0%,#e6f4ff 100%);}
+        .logo{width:140px;margin:20px 0}
+        .title{font-size:28px;color:#2c94cc;margin:10px 0;font-weight:bold;}
+        .subtitle{font-size:16px;color:#666;margin-bottom:35px;}
+        .tips{color:#f85b9d;font-size:14px;margin-top:10px}
+        .btn{background:#2c94cc;color:white;padding:14px 36px;border-radius:50px;border:none;font-size:16px;margin:10px;cursor:pointer;transition:0.2s}
+        .btn:active{transform:scale(0.95)}
+        .btn-light{background:linear-gradient(90deg,#ff97c0,#ff6a9e);}
+        .btn-ar{background:linear-gradient(90deg,#41b8e4,#2c94cc);border:2px solid #fff;}
+        .question-box{background:white;padding:25px;border-radius:20px;width:90%;max-width:420px;margin:20px 0;box-shadow:0 8px 25px rgba(44,148,204,0.08)}
+        .q-title{font-size:18px;margin-bottom:15px;color:#333}
+        .options{display:grid;gap:12px}
+        .option{padding:12px;background:#eef5ff;border-radius:12px;cursor:pointer;transition:0.2s}
+        .option:hover{background:#2c94cc;color:white}
+        .result-card{background:white;padding:35px 25px;border-radius:25px;max-width:400px;width:90%;box-shadow:0 10px 30px rgba(44,148,204,0.1)}
+        .result-avatar{width:90px;height:90px;background:linear-gradient(45deg,#ff8fc9,#2c94cc);border-radius:50%;margin:10px auto;display:flex;align-items:center;justify-content:center;color:white;font-size:16px}
+        .result-title{font-size:24px;color:#2c94cc;margin:10px 0}
+        .result-desc{font-size:15px;color:#666;line-height:1.6;margin-bottom:20px}
+        .memory-wall{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:90%;max-width:400px;margin:20px 0}
+        .memory-item{background:white;padding:15px;border-radius:12px;font-size:14px;box-shadow:0 4px 10px rgba(0,0,0,0.05)}
+        .my-memory{background:#fff0f7;border:1px solid #ff85b9;}
+        .input-box{width:90%;max-width:400px;padding:12px;border-radius:15px;border:1px solid #d1e7ff;margin:10px 0;outline:none}
+        .click-bubble{position:absolute;border-radius:50%;pointer-events:none;animation:clickBubble 1.2s ease-out forwards;}
+        @keyframes clickBubble{0%{transform:scale(0);opacity:1}100%{transform:scale(1.5);opacity:0}}
+        .float-item{position:absolute;animation:floatItem 6s infinite ease-in-out;pointer-events:none;z-index:-1;opacity:0.8;}
+        @keyframes floatItem{0%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-20px) rotate(3deg)}100%{transform:translateY(0) rotate(0deg)}}
+        #posterCanvas{display:none;margin:20px auto;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,0.2);}
+        .save-btn{background:#2c94cc;color:white;padding:12px 30px;border-radius:50px;border:none;margin-top:15px;}
+
+        .ar-box{
+            position:relative;
+            width:100%;
+            max-width:400px;
+            height:400px !important;
+            background:#000;
+            border-radius:20px;
+            overflow:hidden;
+            margin:20px 0;
+        }
+        video,#arCanvas{
+            position:absolute;
+            width:100%;
+            height:100%;
+            object-fit:cover;
+            left:0;top:0;
+        }
+        .ar-stickers{display:flex;gap:8px;overflow-x:auto;padding:10px;width:100%;max-width:400px;}
+        .sticker{padding:8px 12px;background:white;border-radius:12px;font-size:12px;white-space:nowrap;cursor:pointer;border:2px solid transparent;}
+        .sticker.active{border-color:#2c94cc;background:#e6f4ff;}
+        .ar-overlay{position:absolute;bottom:0;left:0;width:100%;padding:15px;text-align:center;color:white;background:linear-gradient(transparent,#00000080);}
+        
+        .preview-modal{
+            position:fixed;
+            top:0;left:0;
+            width:100%;height:100%;
+            background:rgba(0,0,0,0.7);
+            display:none;
+            align-items:center;
+            justify-content:center;
+            z-index:999;
+        }
+        .preview-box{
+            width:90%;
+            max-width:400px;
+            background:white;
+            border-radius:20px;
+            padding:20px;
+            text-align:center;
+        }
+        #previewImg{
+            width:100%;
+            border-radius:15px;
+            margin-bottom:15px;
+        }
+    </style>
+</head>
+<body>
+
+<audio id="soundClick" preload="auto"><source src="游戏选择确认音效-按钮点击声_爱给网_aigei_com.mp3" type="audio/wav"></audio>
+<audio id="soundBubble" preload="auto"><source src="泡泡破裂声-气泡破裂-啪_爱给网_aigei_com.mp3" type="audio/wav"></audio>
+<audio id="soundSuccess" preload="auto"><source src="f5484006807f48d8bfcf507cfeef8b52.mp3" type="audio/wav"></audio>
+
+<div class="fall-wrap" id="fallArea"></div>
+
+<div class="preview-modal" id="previewModal">
+    <div class="preview-box">
+        <img id="previewImg" alt="预览图">
+        <button class="btn" onclick="saveARPhoto()">💾 保存照片</button>
+        <button class="btn btn-light" onclick="closePreviewAndResumeCamera()">返回重拍</button>
+    </div>
+</div>
+
+<div class="page active" id="loading"><h1 class="title">AD钙奶30周年</h1><h2 class="subtitle">正在开启童心拾光机...</h2></div>
+
+<div class="page" id="home">
+    <div class="badge">30周年</div>
+    <img src="娃哈哈LOGO【2026】.ai" class="logo" alt="娃哈哈">
+    <h1 class="title">AD钙奶30周年</h1>
+    <h2 class="subtitle">陪你酸酸甜甜 懂你可可爱爱</h2>
+    <button class="btn" onclick="playClick();goPage('test')">🧃 童心测试</button>
+    <button class="btn btn-light" onclick="playClick();goPage('memory')">📸 回忆墙</button>
+    <button class="btn btn-ar" onclick="playClick();startAR();goPage('ar')">✨ AR童心相机</button>
+    <p class="tips">测人设 + 玩AR + 晒海报 ✨</p>
+</div>
+
+<div class="page" id="test">
+    <h2 class="title">AD童心人设测试</h2>
+    <div class="question-box"><p class="q-title" id="question"></p><div class="options" id="optionsBox"></div></div>
+    <button class="btn" onclick="playClick();goPage('home')">返回首页</button>
+</div>
+
+<div class="page" id="result">
+    <div class="result-card">
+        <div class="result-avatar">AD人设</div>
+        <h2 class="result-title" id="resultTitle"></h2>
+        <p class="result-desc" id="resultDesc"></p>
+        <button class="btn" onclick="playSuccess();generatePoster()">✨ 生成专属海报</button>
+        <button class="btn save-btn" onclick="playClick();savePoster()" style="display:none;" id="saveBtn">💾 保存海报</button>
+    </div>
+    <canvas id="posterCanvas" width="400" height="600"></canvas>
+    <button class="btn btn-ar" onclick="playClick();startAR();goPage('ar')">📸 用AR相机晒人设</button>
+    <button class="btn btn-light" onclick="playClick();goPage('home')">回到首页</button>
+</div>
+
+<div class="page" id="memory">
+    <h2 class="title">30周年时光回忆</h2>
+    <div class="memory-wall" id="wall">
+        <div class="memory-item"><img src = "640.jpg">1996 首次面世</div>
+        <div class="memory-item"><img src = "恐龙版本.jpg">2000 国民饮品</div>
+        <div class="memory-item"><img src = "校园.jpg">2010 校园爆款</div>
+        <div class="memory-item"><img src = "30周年纪念版.jpg">2026 30周年纪念</div>
+    </div>
+    <input type="text" class="input-box" placeholder="写下你的AD钙奶回忆..." id="myMsg">
+    <button class="btn" onclick="playSuccess();sendMsg()">提交回忆</button>
+    <button class="btn btn-light" onclick="playClick();goPage('home')">返回</button>
+</div>
+
+<div class="page" id="ar">
+    <h2 class="title">AD钙奶30周年 · AR童心相机</h2>
+    <div class="ar-box">
+        <video id="arVideo" autoplay playsinline muted></video>
+        <canvas id="arCanvas" width="400" height="400"></canvas>
+        <div class="ar-overlay">点击拍照 · 多款30周年专属贴纸</div>
+    </div>
+
+    <div class="ar-stickers" id="stickerBar">
+        <div class="sticker active" data-type="none">清空贴纸</div>
+        <div class="sticker" data-type="crown">🧃 奶瓶头箍</div>
+        <div class="sticker" data-type="blush">✨ 气泡腮红</div>
+        <div class="sticker" data-type="badge">🎖️ 30周年徽章</div>
+        <div class="sticker" data-type="bubble">💨 酸甜弹幕</div>
+        <div class="sticker" data-type="medal">🏅 天选AD人</div>
+        <div class="sticker" data-type="text">🎈 陪你30年</div>
+    </div>
+
+    <button class="btn btn-ar" onclick="takeARPhoto()">📸 点击拍照</button>
+    <button class="btn btn-light" onclick="closeAR();goPage('home')">返回首页</button>
+</div>
+
+<script>
+    function playClick(){let s=document.getElementById("soundClick");s.currentTime=0;s.play().catch(e=>{});}
+    function playBubble(){let s=document.getElementById("soundBubble");s.currentTime=0;s.play().catch(e=>{});}
+    function playSuccess(){let s=document.getElementById("soundSuccess");s.currentTime=0;s.play().catch(e=>{});}
+
+    function goPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+    let step=0,score=0;
+    const questions=[
+        {q:"1. 你最爱的AD钙奶口味是？",o:["原味经典","草莓甜妹","蜜桃清新","创意混搭"]},
+        {q:"2. 你喝AD钙奶的场景是？",o:["上学路上","宿舍追剧","办公摸鱼","聚会分享"]},
+        {q:"3. 你对AD钙奶的印象是？",o:["童年回忆","酸甜好喝","颜值可爱","营养健康"]},
+        {q:"4. 你的性格更像？",o:["温柔可爱","活泼元气","安静文艺","随性自由"]},
+        {q:"5. 30周年你想对AD钙奶说？",o:["陪我长大啦","永远喝不腻","酸甜治愈我","一路相伴"]}
+    ];
+    // 扩展 results 数组，添加图片路径
+const results = [
+    {t:"经典怀旧小甜心", d:"你是最纯粹的AD党，三十年酸甜，永远是你的童年味道～", img:"220AD草莓味AD瓶型.png"},
+    {t:"草莓元气少女", d:"可可爱爱，元气满满，你就是AD钙奶最甜的代言人！", img:"220AD草莓味新瓶型.png"},
+    {t:"蜜桃清新少年", d:"温柔干净，像蜜桃味一样治愈，是人群中的小美好～", img:"220AD蜜桃味AD瓶型.png"},
+    {t:"创意混搭玩家", d:"有趣的灵魂，喝AD钙奶也要玩出新花样！", img:"220AD蜜桃味新瓶型.png"},
+    {t:"校园童心守护者", d:"学生时代的快乐源泉，AD钙奶陪你走过青春～", img:"220新AD.png"},
+    {t:"职场可爱达人", d:"再忙也要喝AD钙奶，保持童心，永远可爱！", img:"450草莓味.png"},
+    {t:"温柔治愈小天使", d:"像AD钙奶一样温柔，治愈身边每一个人～", img:"450水蜜桃味.png"},
+    {t:"天选AD人", d:"三十年铁粉认证！官方认证天选AD人❤️", img:"450新AD.png"}
+];
+
+    function renderQuestion(){let q=questions[step];document.getElementById("question").innerText=q.q;let box=document.getElementById("optionsBox");box.innerHTML="";q.o.forEach((opt,i)=>{let d=document.createElement("div");d.className="option";d.innerText=opt;d.onclick=()=>{playBubble();answer(i);};box.appendChild(d);})}
+    function answer(i){score+=i+1;step++;step<questions.length?renderQuestion():showResult();}
+    function showResult(){playSuccess();let res=results[score%results.length];document.getElementById("resultTitle").innerText=res.t;document.getElementById("resultDesc").innerText=res.d;goPage("result");}
+
+    function generatePoster(){
+    const canvas = document.getElementById('posterCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    canvas.width = 400;
+    canvas.height = 600;
+    
+    const t = document.getElementById("resultTitle").innerText;
+    const d = document.getElementById("resultDesc").innerText;
+    
+    // 根据标题找到对应的图片
+    let currentResult = results.find(r => r.t === t);
+    let posterImg = currentResult ? currentResult.img : "images/default.png";
+    
+    // 先绘制背景
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, 400, 600);
+    ctx.fillStyle = "#e6f4ff";
+    ctx.fillRect(0, 0, 400, 220);
+    
+    // 绘制装饰圆形
+    ctx.fillStyle = "#ff6a9e";
+    ctx.beginPath();
+    ctx.arc(340, 60, 40, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 22px Arial";
+    ctx.fillText("30th", 315, 67);
+    
+    // 先绘制文字
+    ctx.fillStyle = "#2c94cc";
+    ctx.font = "bold 26px Arial";
+    ctx.fillText(t, 40, 480);
+    ctx.fillStyle = "#666";
+    ctx.font = "16px Arial";
+    ctx.fillText(d, 50, 520);
+    ctx.fillStyle = "#ff6a9e";
+    ctx.font = "bold 24px Arial";
+    ctx.fillText("陪你酸酸甜甜 懂你可可爱爱", 40, 570);
+    
+    // 加载并绘制配图
+    let img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.src = posterImg;
+    
+    img.onload = function() {
+        // 重新绘制所有内容（包含图片）
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, 400, 600);
+        ctx.fillStyle = "#e6f4ff";
+        ctx.fillRect(0, 0, 400, 220);
+        
+        ctx.fillStyle = "#ff6a9e";
+        ctx.beginPath();
+        ctx.arc(340, 60, 40, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 22px Arial";
+        ctx.fillText("30th", 315, 67);
+        
+        // 绘制配图（位置根据图片类型可调整）
+        ctx.drawImage(img, 150, 230, 100, 100);
+        
+        // 绘制文字
+        ctx.fillStyle = "#2c94cc";
+        ctx.font = "bold 26px Arial";
+        ctx.fillText(t, 40, 480);
+        ctx.fillStyle = "#666";
+        ctx.font = "16px Arial";
+        ctx.fillText(d, 50, 520);
+        ctx.fillStyle = "#ff6a9e";
+        ctx.font = "bold 24px Arial";
+        ctx.fillText("陪你酸酸甜甜 懂你可可爱爱", 40, 570);
+        
+        canvas.style.display = "block";
+        document.getElementById("saveBtn").style.display = "inline-block";
+        alert("✅ 海报已生成！");
+    };
+    
+    img.onerror = function() {
+        // 图片加载失败，使用Emoji替代
+        ctx.font = "bold 60px Arial";
+        ctx.fillStyle = "#2c94cc";
+        ctx.fillText("🧃", 170, 280);
+        
+        canvas.style.display = "block";
+        document.getElementById("saveBtn").style.display = "inline-block";
+        alert("✅ 海报已生成！");
+    };
+}
+    
+    
+
+
+// 修复保存功能
+    function savePoster() {
+    const canvas = document.getElementById('posterCanvas');
+    if (canvas && canvas.toDataURL) {
+        try {
+            let a = document.createElement('a');
+            a.download = "AD钙奶30周年-专属人设.png";
+            a.href = canvas.toDataURL('image/png');
+            a.click();
+            alert("✅ 海报保存成功！");
+        } catch(e) {
+            alert("保存失败：" + e.message);
+        }
+    } else {
+        alert("请先生成海报");
+    }
+}
+    function sendMsg(){let m=document.getElementById("myMsg").value;if(m){let i=document.createElement("div");i.className="memory-item my-memory";i.innerText="我的回忆："+m;document.getElementById("wall").appendChild(i);alert("✅ 回忆已上墙！");document.getElementById("myMsg").value="";goPage("memory");}else alert("请输入回忆～");}
+
+    let currentSticker="none";
+    const video=document.getElementById("arVideo");
+    const canvas=document.getElementById("arCanvas");
+    const ctx=canvas.getContext("2d");
+
+    document.querySelectorAll(".sticker").forEach(s=>{
+        s.onclick=()=>{
+            playClick();
+            document.querySelectorAll(".sticker").forEach(n=>n.classList.remove("active"));
+            s.classList.add("active");
+            currentSticker=s.dataset.type;
+        }
+    });
+
+    async function startAR() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+        video.srcObject = stream;
+        
+        // ✅ 关键：让视频填充区域时保持比例，和画布绘制逻辑一致
+        video.style.objectFit = "cover";
+        video.style.width = "400px";
+        video.style.height = "400px";
+        
+    } catch (e) {
+        alert("请允许相机权限～");
+    }
+}
+    function takeARPhoto() {
+    playSuccess();
+
+    // 获取视频原始尺寸（摄像头实际输出分辨率）
+    const videoWidth = video.videoWidth;
+    const videoHeight = video.videoHeight;
+    
+    // 获取视频元素在页面上的显示尺寸
+    const displayWidth = video.clientWidth;   // 400px
+    const displayHeight = video.clientHeight; // 400px
+
+    // 计算视频原始比例和显示比例
+    const videoAspect = videoWidth / videoHeight;
+    const displayAspect = displayWidth / displayHeight;
+
+    // 计算裁剪区域：让视频内容填满显示区域（cover 效果）
+    let sx = 0, sy = 0, sWidth = videoWidth, sHeight = videoHeight;
+    
+    if (videoAspect > displayAspect) {
+        // 视频更宽，裁剪左右
+        sWidth = videoHeight * displayAspect;
+        sx = (videoWidth - sWidth) / 2;
+    } else {
+        // 视频更高，裁剪上下
+        sHeight = videoWidth / displayAspect;
+        sy = (videoHeight - sHeight) / 2;
+    }
+
+    // 设置画布尺寸为显示尺寸（400x400）
+    canvas.width = displayWidth;
+    canvas.height = displayHeight;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 绘制视频（使用裁剪参数，让画面和预览一致）
+    ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, displayWidth, displayHeight);
+
+    // 可选：如果需要镜像（前置摄像头自拍效果）
+    // 取消下面代码的注释即可
+    /*
+    ctx.save();
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, displayWidth, displayHeight);
+    ctx.restore();
+    */
+
+    // 绘制贴纸（位置直接用预览时的坐标）
+    if (currentSticker == "crown") {
+        ctx.font = "bold 80px Arial";
+        ctx.fillText("🧃", 150, 120);
+    }
+    if (currentSticker == "blush") {
+        ctx.fillStyle = "#ff8fc988";
+        ctx.beginPath();
+        ctx.arc(150, 200, 30, 0, Math.PI * 2);
+        ctx.arc(250, 200, 30, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    if (currentSticker == "badge") {
+        ctx.fillStyle = "#ff6a9e";
+        ctx.font = "bold 24px Arial";
+        ctx.fillText("30th", 320, 60);
+    }
+    if (currentSticker == "bubble") {
+        ctx.fillStyle = "#ff6a9e";
+        ctx.font = "bold 32px Arial";
+        ctx.fillText("酸酸甜甜", 120, 380);
+    }
+    if (currentSticker == "medal") {
+        ctx.font = "bold 100px Arial";
+        ctx.fillText("🏅", 150, 280);
+    }
+    if (currentSticker == "text") {
+        ctx.fillStyle = "#2c94cc";
+        ctx.font = "bold 36px Arial";
+        ctx.fillText("陪你30年", 110, 380);
+    }
+
+    // 显示预览
+    document.getElementById("previewImg").src = canvas.toDataURL("image/png");
+    document.getElementById("previewModal").style.display = "flex";
+}
+
+    // ✅ 修复：返回重拍 → 清空画布 + 恢复实时相机
+    function closePreviewAndResumeCamera(){
+        document.getElementById("previewModal").style.display = "none";
+        ctx.clearRect(0,0,400,400);
+    }
+
+    function saveARPhoto(){
+        let a=document.createElement("a");
+        a.download="AD钙奶30周年-AR照片.png";
+        a.href=canvas.toDataURL("image/png");
+        a.click();
+        closePreviewAndResumeCamera();
+    }
+
+    function closeAR(){
+        if(video.srcObject) video.srcObject.getTracks().forEach(t=>t.stop());
+        closePreviewAndResumeCamera();
+    }
+
+    document.addEventListener('click',e=>{playBubble();let b=document.createElement('div');b.className='click-bubble';let c=['#ff9ac8','#ff6a9e','#2c94cc','#87d5ff'];b.style.background=c[Math.floor(Math.random()*4)];b.style.width=b.style.height=Math.random()*25+15+'px';b.style.left=e.clientX-15+'px';b.style.top=e.clientY-15+'px';document.body.appendChild(b);setTimeout(()=>b.remove(),1200);});
+    const items=['🧃','🍬','✏️','📘','🎒','🍓','🍑'];
+    setInterval(()=>{let e=document.createElement('div');e.className='float-item';e.innerText=items[Math.floor(Math.random()*items.length)];e.style.fontSize=Math.random()*20+18+'px';e.style.left=Math.random()*100+'vw';e.style.top=Math.random()*100+'vh';fallArea.appendChild(e);setTimeout(()=>e.remove(),7000);},1200);
+
+    setTimeout(()=>{goPage("home");renderQuestion()},2800);
+</script>
+</body>
+</html>
