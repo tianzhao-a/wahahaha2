@@ -99,13 +99,47 @@
             border-radius:15px;
             margin-bottom:15px;
         }
+        /* 新增音乐开关样式 */
+        .music-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg,#ff9fbd,#fc5c8f);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255,140,150,0.4);
+            z-index: 9999;
+            transition: 0.2s;
+        }
+        .music-control:active {
+            transform: scale(0.9);
+        }
+        .music-control.muted {
+            background: linear-gradient(45deg,#999,#666);
+        }
     </style>
 </head>
 <body>
 
+<!-- 背景音乐 -->
+<audio id="backgroundMusic" preload="auto" loop>
+    <source src="哇哈哈.mp3" type="audio/mpeg">
+</audio>
+
+<!-- 音效 -->
 <audio id="soundClick" preload="auto"><source src="游戏选择确认音效-按钮点击声_爱给网_aigei_com.mp3" type="audio/wav"></audio>
 <audio id="soundBubble" preload="auto"><source src="泡泡破裂声-气泡破裂-啪_爱给网_aigei_com.mp3" type="audio/wav"></audio>
 <audio id="soundSuccess" preload="auto"><source src="f5484006807f48d8bfcf507cfeef8b52.mp3" type="audio/wav"></audio>
+
+<!-- 音乐开关按钮 -->
+<div class="music-control" id="musicBtn" onclick="toggleMusic()">🎵</div>
 
 <div class="fall-wrap" id="fallArea"></div>
 
@@ -185,6 +219,55 @@
 </div>
 
 <script>
+    // 音乐控制相关
+    let isMusicPlaying = false;
+    const bgMusic = document.getElementById('backgroundMusic');
+    
+    // 尝试自动播放音乐（需要用户交互后才能播放）
+    document.addEventListener('click', initMusic, { once: true });
+    
+    // 初始化音乐
+    function initMusic() {
+        if (!isMusicPlaying) {
+            playMusic();
+        }
+    }
+    
+    // 播放音乐
+    function playMusic() {
+        try {
+            bgMusic.volume = 0.5; // 设置音量
+            bgMusic.play().then(() => {
+                isMusicPlaying = true;
+                document.getElementById('musicBtn').innerText = "🎵";
+                document.getElementById('musicBtn').classList.remove('muted');
+            }).catch(e => {
+                console.log('音乐播放失败:', e);
+            });
+        } catch (e) {
+            console.log('音乐播放异常:', e);
+        }
+    }
+    
+    // 暂停音乐
+    function pauseMusic() {
+        bgMusic.pause();
+        isMusicPlaying = false;
+        document.getElementById('musicBtn').innerText = "🔇";
+        document.getElementById('musicBtn').classList.add('muted');
+    }
+    
+    // 切换音乐播放状态
+    function toggleMusic() {
+        playClick(); // 播放点击音效
+        if (isMusicPlaying) {
+            pauseMusic();
+        } else {
+            playMusic();
+        }
+    }
+
+    // 原有音效函数
     function playClick(){let s=document.getElementById("soundClick");s.currentTime=0;s.play().catch(e=>{});}
     function playBubble(){let s=document.getElementById("soundBubble");s.currentTime=0;s.play().catch(e=>{});}
     function playSuccess(){let s=document.getElementById("soundSuccess");s.currentTime=0;s.play().catch(e=>{});}
