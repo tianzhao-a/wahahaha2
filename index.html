@@ -34,6 +34,7 @@
         .btn:active{transform:scale(0.95)}
         .btn-light{background:linear-gradient(90deg,#ff97c0,#ff6a9e);}
         .btn-ar{background:linear-gradient(90deg,#41b8e4,#2c94cc);border:2px solid #fff;}
+        .btn-competition{background:linear-gradient(90deg,#ff97c0,#ff6a9e);}
         .question-box{background:white;padding:25px;border-radius:20px;width:90%;max-width:420px;margin:20px 0;box-shadow:0 8px 25px rgba(44,148,204,0.08)}
         .q-title{font-size:18px;margin-bottom:15px;color:#333}
         .options{display:grid;gap:12px}
@@ -161,6 +162,7 @@
     <button class="btn" onclick="playClick();goPage('test')">🧃 童心测试</button>
     <button class="btn btn-light" onclick="playClick();goPage('memory')">📸 回忆墙</button>
     <button class="btn btn-ar" onclick="playClick();startAR();goPage('ar')">✨ AR童心相机</button>
+    <button class="btn btn-competition" onclick="playClick();goPage('ad-competition')">🎨 青春创意瓶</button>
     <p class="tips">测人设 + 玩AR + 晒海报 ✨</p>
 </div>
 
@@ -195,7 +197,20 @@
     <button class="btn" onclick="playSuccess();sendMsg()">提交回忆</button>
     <button class="btn btn-light" onclick="playClick();goPage('home')">返回</button>
 </div>
-
+<div class="page" id="ad-competition">
+  <iframe 
+    src="wahaha_ad_design_competition.html" 
+    style="width:100%; height:100vh; border:none;"
+    frameborder="0"
+    allowfullscreen>
+  </iframe>
+  <button 
+    class="btn" 
+    style="position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:9999;"
+    onclick="goPage('home')">
+    返回首页
+  </button>
+</div>
 <div class="page" id="ar">
     <h2 class="title">AD钙奶30周年 · AR童心相机</h2>
     <div class="ar-box">
@@ -203,6 +218,10 @@
         <canvas id="arCanvas" width="400" height="400"></canvas>
         <div class="ar-overlay">点击拍照 · 多款30周年专属贴纸</div>
     </div>
+  
+    <!-- 广告设计大赛页面 -->
+
+
 
     <div class="ar-stickers" id="stickerBar">
         <div class="sticker active" data-type="none">清空贴纸</div>
@@ -359,9 +378,9 @@ const results = [
         ctx.fillText("30th", 315, 67);
         
         // 绘制配图（位置根据图片类型可调整）
-        ctx.drawImage(img, 150, 230, 100, 220);
+        ctx.drawImage(img, 150, 230, 100, 100);
         
-        // 绘制文字
+        // 绘制文字3
         ctx.fillStyle = "#2c94cc";
         ctx.font = "bold 26px Arial";
         ctx.fillText(t, 40, 480);
