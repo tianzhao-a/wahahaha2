@@ -30,6 +30,8 @@
         .title{font-size:28px;color:#2c94cc;margin:10px 0;font-weight:bold;}
         .subtitle{font-size:16px;color:#666;margin-bottom:35px;}
         .tips{color:#f85b9d;font-size:14px;margin-top:10px}
+         .btn-back{background:#2c94cc;color:white;padding:14px 36px;border-radius:50px;border:none;font-size:16px;margin:10px;cursor:pointer;transition:0.2s}
+
         .btn{background:#2c94cc;color:white;padding:14px 36px;border-radius:50px;border:none;font-size:16px;margin:10px;cursor:pointer;transition:0.2s}
         .btn:active{transform:scale(0.95)}
         .btn-light{background:linear-gradient(90deg,#ff97c0,#ff6a9e);}
@@ -163,6 +165,8 @@
     <button class="btn btn-light" onclick="playClick();goPage('memory')">📸 回忆墙</button>
     <button class="btn btn-ar" onclick="playClick();startAR();goPage('ar')">✨ AR童心相机</button>
     <button class="btn btn-competition" onclick="playClick();goPage('ad-competition')">🎨 青春创意瓶</button>
+    <button class="btn btn-competition" onclick="playClick();goPage('ad-game')">🎮 趣味小游戏</button>
+
     <p class="tips">测人设 + 玩AR + 晒海报 ✨</p>
 </div>
 
@@ -200,6 +204,20 @@
 <div class="page" id="ad-competition">
   <iframe 
     src="wahaha_ad_design_competition.html" 
+    style="width:100%; height:100vh; border:none;"
+    frameborder="0"
+    allowfullscreen>
+  </iframe>
+  <button 
+    class="btn" 
+    style="position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:9999;"
+    onclick="goPage('home')">
+    返回首页
+  </button>
+</div>
+<div class="page" id="ad-game">
+  <iframe 
+    src="quwenyouxi.html" 
     style="width:100%; height:100vh; border:none;"
     frameborder="0"
     allowfullscreen>
