@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>娃哈哈 · 连击接奶大作战 | 今日未成年</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(145deg, #1a4d8c 0%, #0d2f54 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Poppins', 'Segoe UI', 'Comic Neue', 'Microsoft YaHei', cursive;
+            touch-action: none;
+        }
+
+        .game-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+            background: #87CEEB;
+            border-radius: 48px;
+            overflow: hidden;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.3), 0 0 0 5px #ffd966, 0 0 0 10px #e33f3f;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            background: linear-gradient(180deg, #a8d8ff 0%, #7bc5f5 30%, #5fb0e0 100%);
+            cursor: grab;
+            touch-action: none;
+        }
+        canvas:active {
+            cursor: grabbing;
+        }
+
+        .game-ui {
+            position: absolute;
+            top: 12px;
+            left: 0;
+            right: 0;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.45);
+            backdrop-filter: blur(12px);
+            color: white;
+            font-weight: bold;
+            z-index: 10;
+            pointer-events: none;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .score-box, .time-box, .combo-box {
+            background: rgba(0,0,0,0.7);
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,217,102,0.5);
+        }
+
+        .score-box span:first-child, .time-box span:first-child, .combo-box span:first-child {
+            font-size: 1.1rem;
+        }
+
+        .score-box span:last-child, .time-box span:last-child {
+            color: #ffd966;
+            font-size: 1.3rem;
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        .combo-box {
+            background: linear-gradient(135deg, #e33f3f, #c0392b);
+            animation: pulse 0.5s ease;
+            box-shadow: 0 0 8px rgba(227,63,63,0.5);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 #ff884d; }
+            50% { transform: scale(1.08); box-shadow: 0 0 15px 3px #ff884d; }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 #ff884d; }
+        }
+
+        .control-tip {
+            position: absolute;
+            bottom: 12px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 11px;
+            color: white;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            padding: 6px;
+            border-radius: 30px;
+            width: 85%;
+            margin: 0 auto;
+            z-index: 10;
+            pointer-events: none;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0,0,0,0.92) 0%, rgba(30,20,50,0.95) 100%);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            border-radius: 48px;
+            text-align: center;
+            padding: 24px;
+        }
+
+        .start-screen h1 {
+            font-size: 1.9rem;
+            background: linear-gradient(135deg, #ffd966, #ffaa33);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: none;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .start-screen p {
+            color: rgba(255,240,200,0.9);
+            margin: 8px 0;
+            font-size: 0.85rem;
+        }
+
+        .feature-badge {
+            background: linear-gradient(135deg, #f5a623, #e67e22);
+            border-radius: 30px;
+            padding: 4px 14px;
+            display: inline-block;
+            margin: 8px auto;
+            font-weight: bold;
+            color: white;
+            font-size: 0.8rem;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #e33f3f, #c0392b);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 25px;
+            box-shadow: 0 8px 0 0 #7a1f1f;
+            cursor: pointer;
+            transition: 0.05s linear;
+            font-family: inherit;
+        }
+
+        .start-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 0 #7a1f1f;
+        }
+
+        .end-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(40,20,60,0.98) 100%);
+            backdrop-filter: blur(12px);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            border-radius: 48px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .end-screen h2 {
+            background: linear-gradient(135deg, #ffd966, #ffaa33);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 1.8rem;
+            margin-bottom: 16px;
+        }
+
+        .final-score {
+            background: white;
+            padding: 12px 28px;
+            border-radius: 60px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #e33f3f;
+            margin: 12px 0;
+            font-family: monospace;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .best-combo {
+            background: #ffefcf;
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: #b45f2b;
+            margin-bottom: 16px;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .rank-text {
+            font-size: 1rem;
+            background: rgba(255,240,214,0.9);
+            padding: 10px 24px;
+            border-radius: 40px;
+            color: #b45f2b;
+            margin-bottom: 24px;
+            font-weight: bold;
+        }
+
+        .share-btn, .restart-btn {
+            background: linear-gradient(135deg, #5f8b4c, #3d6b2e);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-top: 10px;
+            box-shadow: 0 5px 0 0 #2c5a1e;
+            cursor: pointer;
+            width: 80%;
+            font-family: inherit;
+            transition: 0.05s linear;
+        }
+        .share-btn:active, .restart-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 3px 0 0 #2c5a1e;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #f5a623, #e67e22);
+            box-shadow: 0 5px 0 0 #b4621a;
+        }
+
+        .floating-text {
+            position: absolute;
+            pointer-events: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #ffefb9;
+            text-shadow: 2px 2px 0 #e33f3f;
+            white-space: nowrap;
+            z-index: 15;
+            animation: floatUp 0.9s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0px) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.3); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.9);
+            color: #ffefb9;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            z-index: 999;
+            opacity: 0;
+            transition: 0.2s;
+            pointer-events: none;
+            font-weight: bold;
+        }
+        
+        .sound-toggle {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            border: none;
+            border-radius: 50px;
+            padding: 6px 12px;
+            color: white;
+            font-size: 0.8rem;
+            z-index: 25;
+            cursor: pointer;
+            font-family: inherit;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+<div class="game-container" id="gameContainer">
+    <div class="game-ui">
+        <div class="score-box"><span>🥛</span><span id="scoreValue">0</span></div>
+        <div class="combo-box" id="comboBox"><span>⚡连击</span><span id="comboValue">0</span><span>x</span></div>
+        <div class="time-box"><span>⏱️</span><span id="timeValue">60</span><span>s</span></div>
+    </div>
+    <canvas id="gameCanvas" width="450" height="700" style="width:100%; height:auto; aspect-ratio:450/700"></canvas>
+    <div class="control-tip" id="controlTip">👇 手指左右滑动 或 倾斜手机 → 移动角色 👇</div>
+    <button class="sound-toggle" id="soundToggleBtn">🔊 音效开</button>
+
+    <div class="start-screen" id="startScreen">
+        <h1>🥛 连击·接奶大作战 🥛</h1>
+        <p>🎮 手指左右滑动 或 倾斜手机 → 移动角色</p>
+        <p>🍼 连续接AD钙奶 → 连击暴击加分！</p>
+        <p><span class="feature-badge">🔥 华丽连击系统</span> 每连击+1，分数额外+连击数！</p>
+        <p>💣 碰到炸弹断连击 & -20分</p>
+        <p>⏰ 60秒内挑战最高连击 & 分数！</p>
+        <button class="start-btn" id="startBtn">🍼 开启童年连击之旅 🍼</button>
+        <p style="margin-top: 20px; font-size:10px;">娃哈哈 · 今日未成年 | 不管几岁，快乐万岁</p>
+    </div>
+
+    <div class="end-screen" id="endScreen">
+        <h2>🎉 游戏结束 🎉</h2>
+        <div class="final-score" id="finalScore">0 分</div>
+        <div class="best-combo" id="bestComboShow">🔥 最高连击: 0x</div>
+        <div class="rank-text" id="rankText">🥉 脆皮小学生</div>
+        <button class="share-btn" id="sharePosterBtn">📸 生成连击海报 📸</button>
+        <button class="restart-btn" id="restartBtn">🔄 再玩一次</button>
+    </div>
+</div>
+<div class="toast" id="toastMsg">提示</div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+    (function(){
+        // ========== 音效系统 ==========
+        let audioCtx = null;
+        let soundEnabled = true;
+        
+        function initAudio() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        
+        function playBeep(type) {
+            if (!soundEnabled) return;
+            if (!audioCtx) initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const now = audioCtx.currentTime;
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            if (type === 'catch') {
+                oscillator.frequency.value = 880;
+                gainNode.gain.setValueAtTime(0.2, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
+                oscillator.type = 'sine';
+            } else if (type === 'bomb') {
+                oscillator.frequency.value = 220;
+                gainNode.gain.setValueAtTime(0.25, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+                oscillator.type = 'sawtooth';
+            } else if (type === 'gameover') {
+                oscillator.frequency.value = 329.63;
+                gainNode.gain.setValueAtTime(0.2, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.8);
+                oscillator.type = 'sine';
+            }
+            oscillator.start();
+            oscillator.stop(now + 0.5);
+        }
+        
+        function playComboSound(comboLevel) {
+            if (!soundEnabled) return;
+            if (!audioCtx) initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const now = audioCtx.currentTime;
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            let freq = 523.25 + Math.min(comboLevel * 15, 600);
+            oscillator.frequency.value = freq;
+            gainNode.gain.setValueAtTime(0.12, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+            oscillator.type = 'square';
+            oscillator.start();
+            oscillator.stop(now + 0.25);
+        }
+        
+        // ========== DOM ==========
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreSpan = document.getElementById('scoreValue');
+        const timeSpan = document.getElementById('timeValue');
+        const comboValueSpan = document.getElementById('comboValue');
+        const comboBoxDiv = document.getElementById('comboBox');
+        const startScreen = document.getElementById('startScreen');
+        const endScreen = document.getElementById('endScreen');
+        const startBtn = document.getElementById('startBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const shareBtn = document.getElementById('sharePosterBtn');
+        const toast = document.getElementById('toastMsg');
+        const finalScoreSpan = document.getElementById('finalScore');
+        const bestComboSpan = document.getElementById('bestComboShow');
+        const rankTextSpan = document.getElementById('rankText');
+        const controlTip = document.getElementById('controlTip');
+        const soundToggleBtn = document.getElementById('soundToggleBtn');
+        
+        soundToggleBtn.onclick = () => {
+            soundEnabled = !soundEnabled;
+            soundToggleBtn.innerText = soundEnabled ? "🔊 音效开" : "🔇 音效关";
+            if (soundEnabled && audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        };
+        
+        // ========== 画布 ==========
+        let width = 450, height = 700;
+        let currentX, targetX;
+        
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            width = rect.width;
+            height = rect.height;
+            canvas.width = width;
+            canvas.height = height;
+            if (player) {
+                player.x = Math.min(Math.max(player.x, player.radius + 10), width - player.radius - 10);
+                currentX = player.x;
+                targetX = player.x;
+            }
+        }
+        
+        // ========== 玩家 ==========
+        let player = {
+            x: 225,
+            y: 620,
+            radius: 28,
+            stunned: false,
+            stunTimer: 0
+        };
+        
+        let items = [];
+        let score = 0;
+        let timeLeft = 60;
+        let gameRunning = false;
+        let gameInterval = null;
+        let animationId = null;
+        
+        // 连击系统
+        let combo = 0;
+        let maxCombo = 0;
+        let lastCatchTime = 0;
+        const COMBO_TIMEOUT = 2800;
+        
+        // ========== 双重控制 ==========
+        let dragX = null;           // 手指滑动
+        let gyroX = 0;              // 陀螺仪值 (-1..1)
+        let useGyro = false;        // 陀螺仪是否可用
+        
+        let lastSpawn = 0;
+        const BASE_SPAWN_INTERVAL = 680;
+        
+        const catchMessages = [
+            "🍼 连击+1!", "⚡ 奶气爆发", "🥛 大小孩之力", "💪 脆皮逆袭",
+            "🎈 快乐连击", "🌟 保持节奏", "📖 童年手感", "💖 娃哈哈助燃"
+        ];
+        
+        // ========== 辅助 ==========
+        function showToastMsg(msg) {
+            toast.innerText = msg;
+            toast.style.opacity = '1';
+            setTimeout(() => { toast.style.opacity = '0'; }, 1500);
+        }
+        
+        function addFloatingText(x, y, text, color="#ffd966") {
+            const container = document.getElementById('gameContainer');
+            if (!container) return;
+            const div = document.createElement('div');
+            div.className = 'floating-text';
+            div.innerText = text;
+            div.style.left = (x - 25) + 'px';
+            div.style.top = (y - 40) + 'px';
+            div.style.color = color;
+            div.style.fontSize = '1rem';
+            div.style.fontWeight = 'bold';
+            div.style.position = 'absolute';
+            container.appendChild(div);
+            setTimeout(() => div.remove(), 900);
+        }
+        
+        function updateComboUI() {
+            comboValueSpan.innerText = combo;
+            if (combo > 0) {
+                comboBoxDiv.style.animation = 'none';
+                comboBoxDiv.offsetHeight;
+                comboBoxDiv.style.animation = 'pulse 0.3s ease';
+                if (combo >= 20) comboBoxDiv.style.background = "linear-gradient(135deg, #d43f1f, #a03020)";
+                else if (combo >= 10) comboBoxDiv.style.background = "linear-gradient(135deg, #f57c2e, #e65c1a)";
+                else comboBoxDiv.style.background = "linear-gradient(135deg, #e33f3f, #c0392b)";
+            } else {
+                comboBoxDiv.style.background = "linear-gradient(135deg, #a03030, #701818)";
+            }
+        }
+        
+        function resetCombo(reason = "bomb") {
+            if (combo > 0) {
+                if (reason === "bomb") addFloatingText(player.x, player.y-20, `💥 连击中断！${combo}连击没了`, "#ff8888");
+                else addFloatingText(player.x, player.y-30, `⏰ 连击超时...`, "#ffaa66");
+                combo = 0;
+                updateComboUI();
+            }
+        }
+        
+        function addComboAndBonus() {
+            combo++;
+            if (combo > maxCombo) maxCombo = combo;
+            let comboBonus = combo * 2;
+            score += comboBonus;
+            scoreSpan.innerText = Math.floor(score);
+            addFloatingText(player.x, player.y-15, `+${comboBonus} 连击加成!`, "#ffaa55");
+            updateComboUI();
+            lastCatchTime = Date.now();
+            playComboSound(combo);
+        }
+        
+        function handleCatchGood(itemX, itemY) {
+            score += 10;
+            addComboAndBonus();
+            scoreSpan.innerText = Math.floor(score);
+            const msg = catchMessages[Math.floor(Math.random() * catchMessages.length)];
+            addFloatingText(itemX, itemY, `+10 ${msg}`, '#ffd966');
+            playBeep('catch');
+            if (navigator.vibrate) navigator.vibrate(40);
+        }
+        
+        function handleHitBomb(itemX, itemY) {
+            score = Math.max(0, score - 20);
+            scoreSpan.innerText = Math.floor(score);
+            addFloatingText(itemX, itemY, `-20 💣 烦恼炸弹`, '#ff8888');
+            playBeep('bomb');
+            if (navigator.vibrate) navigator.vibrate(200);
+            resetCombo("bomb");
+            player.stunned = true;
+            player.stunTimer = 500;
+        }
+        
+        function spawnItem() {
+            if (!gameRunning) return;
+            const isGood = Math.random() < 0.7;
+            const x = 40 + Math.random() * (width - 80);
+            const radius = 20;
+            let speed = 3.2 + Math.random() * 3.5;
+            if (combo > 15) speed += 1.3;
+            else if (combo > 8) speed += 0.8;
+            items.push({
+                x: x, y: -radius, radius: radius, type: isGood ? 'good' : 'bad',
+                speed: speed
+            });
+        }
+        
+        function updateGame() {
+            if (!gameRunning) return;
+            
+            if (combo > 0 && (Date.now() - lastCatchTime) > COMBO_TIMEOUT) {
+                resetCombo("timeout");
+            }
+            
+            if (player.stunned) {
+                player.stunTimer -= 16;
+                if (player.stunTimer <= 0) player.stunned = false;
+            } else {
+                // 计算目标位置：优先使用手指滑动，其次陀螺仪
+                let newTarget = player.x;
+                if (dragX !== null) {
+                    // 手指滑动模式
+                    let rect = canvas.getBoundingClientRect();
+                    let scaleX = width / rect.width;
+                    let canvasX = (dragX - rect.left) * scaleX;
+                    newTarget = Math.min(Math.max(canvasX, player.radius + 12), width - player.radius - 12);
+                    targetX = newTarget;
+                } else if (useGyro) {
+                    // 陀螺仪模式
+                    let gyroTarget = width/2 + gyroX * (width/2 - player.radius - 12);
+                    gyroTarget = Math.min(Math.max(gyroTarget, player.radius + 12), width - player.radius - 12);
+                    targetX = gyroTarget;
+                }
+                // 平滑移动
+                currentX += (targetX - currentX) * 0.3;
+                player.x = currentX;
+            }
+            
+            for (let i=0; i<items.length; i++) {
+                const item = items[i];
+                item.y += item.speed;
+                const dx = player.x - item.x;
+                const dy = player.y - item.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (!player.stunned && dist < player.radius + item.radius) {
+                    if (item.type === 'good') handleCatchGood(item.x, item.y);
+                    else handleHitBomb(item.x, item.y);
+                    items.splice(i,1);
+                    i--;
+                    continue;
+                }
+                if (item.y - item.radius > height) {
+                    items.splice(i,1);
+                    i--;
+                }
+            }
+            
+            let dynamicSpawn = BASE_SPAWN_INTERVAL;
+            if (combo >= 20) dynamicSpawn = 460;
+            else if (combo >= 12) dynamicSpawn = 540;
+            else if (combo >= 6) dynamicSpawn = 600;
+            const now = Date.now();
+            if (now - lastSpawn > dynamicSpawn) {
+                lastSpawn = now;
+                spawnItem();
+                if (combo > 12 && Math.random() < 0.28) spawnItem();
+            }
+        }
+        
+        // 华丽绘制
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            // 云朵
+            ctx.fillStyle = 'rgba(255,255,245,0.7)';
+            ctx.beginPath();
+            ctx.ellipse(60, 50, 35, 30, 0, 0, Math.PI*2);
+            ctx.ellipse(100, 40, 40, 32, 0, 0, Math.PI*2);
+            ctx.ellipse(140, 55, 30, 28, 0, 0, Math.PI*2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(width-80, 70, 40, 32, 0, 0, Math.PI*2);
+            ctx.ellipse(width-120, 55, 35, 28, 0, 0, Math.PI*2);
+            ctx.fill();
+            
+            // 草地
+            ctx.fillStyle = '#6fbf4c';
+            ctx.fillRect(0, height-55, width, 55);
+            ctx.fillStyle = '#8ed15a';
+            for(let i=0;i<16;i++) {
+                ctx.beginPath();
+                ctx.moveTo(i*42, height-55);
+                ctx.lineTo(i*42+25, height-80);
+                ctx.lineTo(i*42+50, height-55);
+                ctx.fill();
+            }
+            for(let i=0;i<8;i++) {
+                ctx.fillStyle = ['#ffaaa5','#ffd6a5','#caffbf'][i%3];
+                ctx.beginPath();
+                ctx.arc(35 + i*55, height-45, 5, 0, Math.PI*2);
+                ctx.fill();
+                ctx.fillStyle = '#fdfb8f';
+                ctx.beginPath();
+                ctx.arc(35 + i*55, height-45, 2, 0, Math.PI*2);
+                ctx.fill();
+            }
+            
+            for (const item of items) {
+                if (item.type === 'good') {
+                    ctx.save();
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = '#e33f3f';
+                    ctx.fillStyle = '#e33f3f';
+                    ctx.beginPath();
+                    ctx.ellipse(item.x, item.y, item.radius, item.radius*1.2, 0, 0, Math.PI*2);
+                    ctx.fill();
+                    ctx.fillStyle = 'white';
+                    ctx.font = `bold ${item.radius}px "Segoe UI Emoji"`;
+                    ctx.fillText("🥛", item.x-13, item.y+9);
+                    ctx.fillStyle = '#ffd966';
+                    ctx.font = `${item.radius-5}px monospace`;
+                    ctx.fillText("AD", item.x-10, item.y+4);
+                    ctx.restore();
+                } else {
+                    ctx.fillStyle = '#2c2c2c';
+                    ctx.shadowBlur = 5;
+                    ctx.beginPath();
+                    ctx.arc(item.x, item.y, item.radius, 0, Math.PI*2);
+                    ctx.fill();
+                    ctx.fillStyle = '#ff4444';
+                    ctx.font = `${item.radius+2}px "Segoe UI Emoji"`;
+                    ctx.fillText("💣", item.x-13, item.y+9);
+                    ctx.fillStyle = 'white';
+                    ctx.font = `${item.radius-8}px monospace`;
+                    ctx.fillText("烦", item.x-6, item.y+4);
+                }
+            }
+            
+            ctx.save();
+            if (player.stunned) {
+                ctx.filter = "blur(3px)";
+                ctx.fillStyle = '#a0a0ff';
+            } else {
+                ctx.fillStyle = '#f5a623';
+                if (combo >= 8) {
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = '#ffaa55';
+                }
+            }
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.radius, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = '#3a2a1f';
+            ctx.beginPath();
+            ctx.arc(player.x-10, player.y-7, 4.5, 0, Math.PI*2);
+            ctx.arc(player.x+10, player.y-7, 4.5, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(player.x-11, player.y-9, 2, 0, Math.PI*2);
+            ctx.arc(player.x+9, player.y-9, 2, 0, Math.PI*2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(player.x, player.y+7, 12, 0.1, Math.PI - 0.1);
+            ctx.strokeStyle = '#4a2a10';
+            ctx.lineWidth = 2.8;
+            ctx.stroke();
+            ctx.font = "26px 'Segoe UI Emoji'";
+            ctx.fillStyle = '#e33f3f';
+            ctx.fillText("🍼", player.x-15, player.y-16);
+            
+            if (combo >= 15) {
+                ctx.font = "32px 'Segoe UI Emoji'";
+                ctx.fillStyle = '#ff6633';
+                ctx.fillText("🔥", player.x-10, player.y-34);
+            } else if (combo >= 8) {
+                ctx.font = "28px 'Segoe UI Emoji'";
+                ctx.fillStyle = '#ffaa33';
+                ctx.fillText("⚡", player.x-8, player.y-32);
+            }
+            ctx.restore();
+            
+            if (player.stunned) {
+                ctx.fillStyle = 'rgba(255,80,80,0.3)';
+                ctx.fillRect(0,0,width,height);
+            }
+            
+            if (combo > 0 && gameRunning) {
+                let elapsed = Date.now() - lastCatchTime;
+                let percent = 1 - Math.min(1, elapsed / COMBO_TIMEOUT);
+                if (percent > 0) {
+                    ctx.fillStyle = '#ffaa55';
+                    ctx.fillRect(15, 15, (width-30) * percent, 6);
+                    ctx.fillStyle = '#ffffffaa';
+                    ctx.fillRect(15 + (width-30) * percent, 15, (width-30) * (1-percent), 6);
+                }
+            }
+        }
+        
+        function gameLoop() {
+            if (!gameRunning) return;
+            updateGame();
+            draw();
+            animationId = requestAnimationFrame(gameLoop);
+        }
+        
+        function startTimer() {
+            if (gameInterval) clearInterval(gameInterval);
+            gameInterval = setInterval(() => {
+                if (!gameRunning) return;
+                if (timeLeft <= 1) {
+                    endGame();
+                } else {
+                    timeLeft--;
+                    timeSpan.innerText = timeLeft;
+                }
+            }, 1000);
+        }
+        
+        function endGame() {
+            gameRunning = false;
+            if (gameInterval) clearInterval(gameInterval);
+            if (animationId) cancelAnimationFrame(animationId);
+            playBeep('gameover');
+            const rank = getRank(score, maxCombo);
+            finalScoreSpan.innerText = `${Math.floor(score)} 分`;
+            bestComboSpan.innerHTML = `🔥 最高连击: ${maxCombo}x`;
+            rankTextSpan.innerHTML = `${rank.title}<br><span style="font-size:11px;">${rank.desc}</span>`;
+            endScreen.style.display = 'flex';
+        }
+        
+        function getRank(scoreVal, maxComboVal) {
+            if (scoreVal >= 600 || maxComboVal >= 35) return { title: "🏆 娃哈哈连击之神", desc: "连击之魂，无人能敌！" };
+            if (scoreVal >= 400 || maxComboVal >= 22) return { title: "🥇 黄金连击大小孩", desc: "奶气冲天的节奏大师" };
+            if (scoreVal >= 250 || maxComboVal >= 12) return { title: "🥈 白银接奶高手", desc: "连击手感火热" };
+            if (scoreVal >= 120) return { title: "🥉 脆皮连击学徒", desc: "多喝AD钙奶，提升连击" };
+            return { title: "🍼 萌新奶娃", desc: "再来一瓶，练练连击" };
+        }
+        
+        function resetGame() {
+            items = [];
+            score = 0;
+            timeLeft = 60;
+            combo = 0;
+            maxCombo = 0;
+            lastCatchTime = 0;
+            player.stunned = false;
+            player.stunTimer = 0;
+            player.x = width/2;
+            currentX = width/2;
+            targetX = width/2;
+            scoreSpan.innerText = "0";
+            timeSpan.innerText = "60";
+            comboValueSpan.innerText = "0";
+            updateComboUI();
+            lastSpawn = Date.now();
+            if (gameInterval) clearInterval(gameInterval);
+            if (animationId) cancelAnimationFrame(animationId);
+            gameRunning = false;
+            endScreen.style.display = 'none';
+        }
+        
+        function initGame() {
+            resetGame();
+            gameRunning = true;
+            startTimer();
+            animationId = requestAnimationFrame(gameLoop);
+            for(let i=0;i<4;i++) spawnItem();
+            lastSpawn = Date.now();
+            lastCatchTime = Date.now();
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        }
+        
+        // ========== 陀螺仪 (带iOS授权) ==========
+        function initGyro() {
+            if (typeof DeviceOrientationEvent !== 'undefined') {
+                if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    // iOS: 需要用户点击授权，在开始游戏后调用
+                    startBtn.addEventListener('click', () => {
+                        DeviceOrientationEvent.requestPermission()
+                            .then(response => {
+                                if (response === 'granted') {
+                                    window.addEventListener('deviceorientation', handleOrientation);
+                                    useGyro = true;
+                                    controlTip.innerHTML = "🎯 陀螺仪已启用 | 手指滑动也支持 🎯";
+                                    showToastMsg("陀螺仪授权成功！倾斜手机移动角色~");
+                                }
+                            })
+                            .catch(err => {
+                                console.log("陀螺仪授权失败", err);
+                                useGyro = false;
+                                controlTip.innerHTML = "👇 手指左右滑动屏幕 → 移动角色 👇";
+                            });
+                    }, { once: true });
+                } else {
+                    // Android: 直接监听
+                    window.addEventListener('deviceorientation', handleOrientation);
+                    useGyro = true;
+                    controlTip.innerHTML = "🎯 陀螺仪已启用 | 手指滑动也支持 🎯";
+                }
+            } else {
+                controlTip.innerHTML = "👇 手指左右滑动屏幕 → 移动角色 👇";
+            }
+        }
+        
+        function handleOrientation(event) {
+            if (!gameRunning) return;
+            let gamma = event.gamma;
+            if (gamma === null || gamma === undefined) return;
+            let normalized = Math.min(Math.max(gamma / 38, -1), 1);
+            gyroX = normalized;
+        }
+        
+        // ========== 手指拖拽控制 ==========
+        function setupDragControls() {
+            const getClientX = (e) => e.touches ? e.touches[0].clientX : e.clientX;
+            const onDragStart = (e) => {
+                e.preventDefault();
+                dragX = getClientX(e);
+                let rect = canvas.getBoundingClientRect();
+                let scaleX = width / rect.width;
+                let canvasX = (dragX - rect.left) * scaleX;
+                let newX = Math.min(Math.max(canvasX, player.radius + 12), width - player.radius - 12);
+                targetX = newX;
+                currentX = newX;
+                player.x = newX;
+            };
+            const onDragMove = (e) => {
+                if (!gameRunning) return;
+                if (dragX !== null) {
+                    e.preventDefault();
+                    dragX = getClientX(e);
+                    let rect = canvas.getBoundingClientRect();
+                    let scaleX = width / rect.width;
+                    let canvasX = (dragX - rect.left) * scaleX;
+                    let newX = Math.min(Math.max(canvasX, player.radius + 12), width - player.radius - 12);
+                    targetX = newX;
+                }
+            };
+            const onDragEnd = () => { dragX = null; };
+            canvas.addEventListener('touchstart', onDragStart, { passive: false });
+            canvas.addEventListener('touchmove', onDragMove, { passive: false });
+            canvas.addEventListener('touchend', onDragEnd);
+            canvas.addEventListener('mousedown', onDragStart);
+            window.addEventListener('mousemove', onDragMove);
+            window.addEventListener('mouseup', onDragEnd);
+        }
+        
+        // ========== 按钮事件 ==========
+        function onStartGame() {
+            startScreen.style.display = 'none';
+            initGame();
+        }
+        function onRestartGame() {
+            endScreen.style.display = 'none';
+            initGame();
+        }
+        async function onSharePoster() {
+            if (!gameRunning) {
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = 400;
+                tempCanvas.height = 600;
+                const tCtx = tempCanvas.getContext('2d');
+                tCtx.fillStyle = '#fff9ef';
+                tCtx.fillRect(0,0,400,600);
+                tCtx.fillStyle = '#e33f3f';
+                tCtx.fillRect(0,0,400,80);
+                tCtx.fillStyle = '#ffd966';
+                tCtx.font = 'bold 24px "Segoe UI"';
+                tCtx.fillText('🥛 今日未成年·连击版 🥛', 60, 50);
+                tCtx.fillStyle = '#b45f2b';
+                tCtx.font = '22px sans-serif';
+                tCtx.fillText(`🏆 得分: ${Math.floor(score)}`, 130, 170);
+                tCtx.font = '20px sans-serif';
+                tCtx.fillStyle = '#f57c2e';
+                tCtx.fillText(`🔥 最高连击: ${maxCombo}x`, 125, 240);
+                const rankObj = getRank(score, maxCombo);
+                tCtx.fillStyle = '#5f8b4c';
+                tCtx.font = '18px sans-serif';
+                tCtx.fillText(`${rankObj.title}`, 130, 310);
+                tCtx.fillStyle = '#a5470c';
+                tCtx.font = '14px sans-serif';
+                tCtx.fillText('娃哈哈AD钙奶 · 连击接奶大作战', 80, 440);
+                tCtx.fillStyle = '#c13b3b';
+                tCtx.font = 'bold 15px sans-serif';
+                tCtx.fillText('扫码关注 挑战更高连击', 115, 530);
+                const link = document.createElement('a');
+                link.download = 'wahaha_combo_champion.png';
+                link.href = tempCanvas.toDataURL();
+                link.click();
+                showToastMsg('连击海报已生成，分享你的高光时刻!');
+            } else {
+                showToastMsg('游戏结束后才能生成海报哟');
+            }
+        }
+        
+        startBtn.onclick = onStartGame;
+        restartBtn.onclick = onRestartGame;
+        shareBtn.onclick = onSharePoster;
+        
+        setupDragControls();
+        initGyro();
+        
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            if (player) player.x = Math.min(Math.max(player.x, player.radius + 10), width - player.radius - 10);
+        });
+        resizeCanvas();
+        
+        function defaultDraw() {
+            if (ctx) {
+                ctx.fillStyle = '#a8d8ff';
+                ctx.fillRect(0,0,width,height);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 20px sans-serif';
+                ctx.fillText('🍼 点击下方按钮开始', width/2-110, height/2);
+            }
+        }
+        defaultDraw();
+    })();
+</script>
+</body>
+</html>
